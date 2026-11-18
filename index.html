@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hangman Pro — Dashboard Edition</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="logo-icon">🎮</span>
+        <div>
+          <h1>HANGMAN <span class="badge">PRO</span></h1>
+          <p class="subtitle">Dashboard Web Edition</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="newGameTopBtn" class="btn btn-primary btn-sm">🔄 New Game</button>
+        <button id="soundToggleBtn" class="btn btn-icon" title="Toggle Sound">🔊</button>
+        <button id="statsModalBtn" class="btn btn-icon" title="View Statistics">📊</button>
+        <button id="themeToggleBtn" class="btn btn-icon" title="Toggle Theme">🌙</button>
+      </div>
+    </header>
+
+    <!-- Top Dashboard Stats Bar -->
+    <section class="stats-ribbon">
+      <div class="stat-pill">
+        <span class="label">Games</span>
+        <span id="statGames" class="val">0</span>
+      </div>
+      <div class="stat-pill">
+        <span class="label">Wins</span>
+        <span id="statWins" class="val text-success">0</span>
+      </div>
+      <div class="stat-pill">
+        <span class="label">Losses</span>
+        <span id="statLosses" class="val text-danger">0</span>
+      </div>
+      <div class="stat-pill">
+        <span class="label">Streak</span>
+        <span id="statStreak" class="val text-warning">0</span>
+      </div>
+      <div class="stat-pill">
+        <span class="label">Win Rate</span>
+        <span id="statWinRate" class="val">0%</span>
+      </div>
+    </section>
+
+    <!-- Category Selector Bar -->
+    <nav class="category-nav">
+      <span class="category-label">Category:</span>
+      <div class="category-pills" id="categoryPills">
+        <button class="cat-btn active" data-category="Programming">💻 Programming</button>
+        <button class="cat-btn" data-category="Animals">🦁 Animals</button>
+        <button class="cat-btn" data-category="Countries">🌍 Countries</button>
+        <button class="cat-btn" data-category="Science">🔬 Science</button>
+        <button class="cat-btn" data-category="Random">🎲 Random Mix</button>
+      </div>
+    </nav>
+
+    <!-- Main Game Board -->
+    <main class="game-dashboard">
+      <!-- Left Column: Visual Hangman & Lives -->
+      <div class="dashboard-card hangman-card">
+        <div class="card-header">
+          <span class="card-title">Gallows Stage</span>
+          <div class="lives-indicator" id="livesIndicator">
+            <!-- Dynamic Hearts -->
+          </div>
+        </div>
+
+        <div class="svg-container">
+          <svg id="hangmanSvg" viewBox="0 0 240 280">
+            <!-- Gallows -->
+            <line x1="20" y1="260" x2="220" y2="260" class="gallow-part" stroke-width="6"/>
+            <line x1="60" y1="260" x2="60" y2="20" class="gallow-part" stroke-width="6"/>
+            <line x1="60" y1="20" x2="160" y2="20" class="gallow-part" stroke-width="6"/>
+            <line x1="160" y1="20" x2="160" y2="55" class="gallow-part rope" stroke-width="3"/>
+            <line x1="60" y1="60" x2="100" y2="20" class="gallow-part" stroke-width="4"/>
+
+            <!-- Hangman Body Parts (Stages 1-6) -->
+            <circle id="partHead" cx="160" cy="80" r="24" class="man-part"/>
+            <line id="partTorso" x1="160" y1="104" x2="160" y2="175" class="man-part" stroke-width="5"/>
+            <line id="partLeftArm" x1="160" y1="125" x2="125" y2="155" class="man-part" stroke-width="4"/>
+            <line id="partRightArm" x1="160" y1="125" x2="195" y2="155" class="man-part" stroke-width="4"/>
+            <line id="partLeftLeg" x1="160" y1="175" x2="130" y2="225" class="man-part" stroke-width="4"/>
+            <line id="partRightLeg" x1="160" y1="175" x2="190" y2="225" class="man-part" stroke-width="4"/>
+          </svg>
+        </div>
+
+        <div class="mistakes-counter" id="mistakesCounter">
+          Mistakes: <strong>0 / 6</strong>
+        </div>
+      </div>
+
+      <!-- Right Column: Secret Word, Clues, Status & Keyboard -->
+      <div class="dashboard-card play-card">
+        <!-- Clue / Hint Strip -->
+        <div class="hint-bar">
+          <div class="hint-content" id="hintContent">
+            <span class="hint-icon">💡</span>
+            <span id="hintText">Need a clue? Click Reveal Hint!</span>
+          </div>
+          <button id="revealHintBtn" class="btn btn-hint">Reveal Hint</button>
+        </div>
+
+        <!-- Word Display Tiles (Always single row, responsive) -->
+        <div class="word-display" id="wordDisplay">
+          <!-- Dynamic letter slots -->
+        </div>
+
+        <!-- Status Message Banner -->
+        <div class="status-banner" id="statusBanner">
+          <span class="status-icon" id="statusIcon">⚡</span>
+          <span class="status-text" id="statusText">Pick a letter or use your physical keyboard!</span>
+        </div>
+
+        <!-- Guess History Bar (Letters Tried in Active Round) -->
+        <div class="guess-history-bar" id="guessHistoryBar">
+          <div class="history-bar-label">
+            <span class="history-icon">🔤</span>
+            <span>Letters Tried:</span>
+          </div>
+          <div class="history-chips" id="historyChips">
+            <span class="history-empty">No letters guessed yet</span>
+          </div>
+        </div>
+
+        <!-- Solve Full Word Quick Bar -->
+        <div class="solve-bar">
+          <input type="text" id="solveInput" placeholder="Know the word? Type it here to solve..." autocomplete="off">
+          <button id="solveBtn" class="btn btn-secondary btn-sm">Solve</button>
+        </div>
+
+        <!-- On-Screen Virtual Keyboard -->
+        <div class="virtual-keyboard" id="keyboard">
+          <!-- Letters A-Z injected by app.js -->
+        </div>
+
+        <!-- Bottom Actions -->
+        <div class="game-actions">
+          <button id="newGameBtn" class="btn btn-primary btn-sm">🔄 Play Again</button>
+          <button id="resetStatsBtn" class="btn btn-ghost btn-sm">Reset Stats</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Match History Ribbon / Bar -->
+    <section class="match-history-bar" id="matchHistoryBar">
+      <div class="history-bar-header">
+        <div class="history-title-wrap">
+          <span class="history-icon">📜</span>
+          <span class="history-title">Match History</span>
+          <span class="history-count" id="historyCountBadge">0 Games</span>
+        </div>
+        <button id="clearHistoryBtn" class="btn btn-ghost btn-xs" title="Clear Match History">Clear History</button>
+      </div>
+      <div class="history-scroll-track" id="historyScrollTrack">
+        <div class="history-empty-placeholder">No completed games yet. Finish a round to log your match history!</div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Built for <strong>CodeAlpha Python Internship</strong> • Also playable in CLI via <code>python main.py</code></p>
+    </footer>
+  </div>
+
+  <!-- End of Game / Statistics Modal -->
+  <div class="modal-overlay" id="endGameModal">
+    <div class="modal-card">
+      <div class="modal-header-graphic" id="modalGraphic">🎉</div>
+      <h2 id="modalTitle">Victory!</h2>
+      <p id="modalSubtitle">You successfully saved the hangman!</p>
+      
+      <div class="revealed-word-box">
+        <span class="label">Secret Word</span>
+        <span class="word" id="modalSecretWord">PYTHON</span>
+        <span class="clue" id="modalSecretHint">A popular interpreted language</span>
+      </div>
+
+      <div class="modal-stats-grid">
+        <div class="modal-stat">
+          <span class="label">Mistakes</span>
+          <span class="value" id="modalMistakes">2 / 6</span>
+        </div>
+        <div class="modal-stat">
+          <span class="label">Streak</span>
+          <span class="value text-warning" id="modalStreak">3</span>
+        </div>
+        <div class="modal-stat">
+          <span class="label">Win Rate</span>
+          <span class="value text-success" id="modalWinRate">85%</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="modalPlayAgainBtn" class="btn btn-primary btn-large">Play Again 🚀</button>
+        <button id="modalCloseBtn" class="btn btn-ghost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas for Confetti -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>
